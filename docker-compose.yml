@@ -1,36 +1,36 @@
 version: "3"
 services:
   frontend:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./frontend # Sepecify Dockerfile path in frontend
+    image: lewisjeong/docker-frontend
     volumes:
       - /app/node_modules # /app/node_modules는 docker container에 있는 파일들을 사용
       - ./frontend:/app # /app이 local에 있는 ./frontend에 있는 파일을 참조
     stdin_open: true
+    mem_limit: 128m
 
   nginx:
     restart: always # 서버가 꺼지면 항상 restart 한다.
-    build:
-      dockerfile: Dockerfile
-      context: ./nginx
+    image: lewisjeong/docker-nginx
     ports:
       - "80:80"
+    mem_limit: 128m
+    links:
+      - frontend
+      - backend
 
   backend:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./backend
+    image: lewisjeong/docker-backend
     container_name: app_backend
     volumes:
       - /app/node_modules
       - ./backend:/app
     environment:
-      MYSQL_HOST: mysql
+      MYSQL_HOST: docker-fullstack-mysql.ciapofkwma9d.ap-northeast-2.rds.amazonaws.com
       MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: hongjun123
       MYSQL_DATABASE: myapp
       MYSQL_PORT: 3306
+    mem_limit: 128m
 
   # mysql:
   #   build: ./mysql
